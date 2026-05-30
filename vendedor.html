@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" onerror="window._qrFailed=true"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
   <style>
     .vendedor-page {
@@ -455,30 +455,69 @@
       });
     });
 
-    // Gera o QR code em div oculta e retorna como imagem
+    // Gera o QR code — tenta QRCodeJS, cai na API do Google se falhar
     function gerarQR(url) {
       return new Promise((resolve) => {
-        qrHidden.innerHTML = '';
-        const qr = new QRCode(qrHidden, {
-          text: url,
-          width: 220,
-          height: 220,
-          colorDark: '#1a0a0f',
-          colorLight: '#fff8fa',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-        // QRCodeJS renderiza de forma síncrona mas precisa de um tick
-        setTimeout(() => {
-          const img = qrHidden.querySelector('img') || qrHidden.querySelector('canvas');
-          if (!img) { resolve(null); return; }
-          if (img.tagName === 'IMG') {
-            const i = new Image();
-            i.onload = () => resolve(i);
-            i.src = img.src;
-          } else {
-            resolve(img); // é um canvas direto
-          }
-        }, 80);
+
+        // Fallback via API (sempre funciona, inclusive no mobile)
+        function usarAPI() {
+          const apiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url)}&color=1a0a0f&bgcolor=fff8fa`;
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => resolve(null);
+          img.src = apiUrl;
+        }
+
+        // Tenta QRCodeJS primeiro (offline friendly)
+        if (window._qrFailed || typeof QRCode === 'undefined') {
+          usarAPI();
+          return;
+        }
+
+        try {
+          qrHidden.innerHTML = '';
+          new QRCode(qrHidden, {
+            text: url,
+            width: 220,
+            height: 220,
+            colorDark: '#1a0a0f',
+            colorLight: '#fff8fa',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+
+          setTimeout(() => {
+            const el = qrHidden.querySelector('canvas') || qrHidden.querySelector('img');
+            if (!el) { usarAPI(); return; }
+
+            if (el.tagName === 'CANVAS') {
+              resolve(el);
+              return;
+            }
+
+            // É uma <img> — precisa carregar antes de desenhar no canvas
+            if (el.complete && el.naturalWidth > 0) {
+              const i = new Image();
+              i.crossOrigin = 'anonymous';
+              i.onload = () => resolve(i);
+              i.onerror = () => usarAPI();
+              i.src = el.src;
+            } else {
+              el.onload = () => {
+                const i = new Image();
+                i.crossOrigin = 'anonymous';
+                i.onload = () => resolve(i);
+                i.onerror = () => usarAPI();
+                i.src = el.src;
+              };
+              el.onerror = () => usarAPI();
+              // Aumenta o timeout para mobile
+              setTimeout(() => { if (!el.complete) usarAPI(); }, 2000);
+            }
+          }, 150);
+        } catch (e) {
+          usarAPI();
+        }
       });
     }
 
