@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar | Correio Elegante</title>
+  <meta name="theme-color" content="#ff5471" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 44px 40px;
+      border-radius: 28px;
+      position: relative;
+      z-index: 1;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-header .l-icon {
+      font-size: 2.8rem;
+      display: block;
+      margin-bottom: 12px;
+      color: var(--color-primary, #ff5471);
+      animation: heartbeat 1.6s ease infinite;
+    }
+    .login-header h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.4rem;
+      color: var(--landing-hero, #ff3a5c);
+      margin: 0 0 4px;
+    }
+    .login-header p {
+      color: var(--muted, #888);
+      font-size: .88rem;
+      margin: 0;
+    }
+    .login-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .login-field label { font-weight: 600; font-size: .88rem; color: var(--text); }
+    .login-field .input-wrap { position: relative; }
+    .login-field .input-wrap i {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted, #888); font-size: .9rem; pointer-events: none;
+    }
+    .login-field input {
+      width: 100%; padding: 12px 14px 12px 40px; border-radius: 12px;
+      border: 2px solid rgba(255,84,113,.2); background: rgba(255,255,255,.6);
+      color: var(--text); font-size: .95rem; outline: none; transition: border-color .2s;
+      box-sizing: border-box;
+    }
+    .login-field input:focus { border-color: var(--color-primary, #ff5471); }
+    .login-error {
+      display: none; padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+      background: rgba(239,68,68,.1); color: #dc2626; border: 1px solid rgba(239,68,68,.2);
+      font-size: .88rem; text-align: center;
+    }
+    .login-error.visible { display: block; }
+    .role-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .role-tab {
+      flex: 1; padding: 10px; border: 2px solid rgba(255,84,113,.2); border-radius: 12px;
+      background: none; cursor: pointer; font-family: inherit; font-weight: 600;
+      color: var(--muted, #888); transition: .2s; font-size: .88rem;
+    }
+    .role-tab.active {
+      border-color: var(--color-primary, #ff5471); color: var(--color-primary, #ff5471);
+      background: rgba(255,84,113,.07);
+    }
+    .back-link {
+      display: block; text-align: center; margin-top: 20px;
+      color: var(--muted, #888); font-size: .85rem;
+    }
+    .back-link a { color: var(--color-primary, #ff5471); font-weight: 600; }
+  </style>
+</head>
+<body class="landing-page">
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+
+  <div class="login-page">
+    <div class="login-card glass">
+      <div class="login-header">
+        <i class="fa-solid fa-envelope-heart l-icon"></i>
+        <h1>Correio Elegante</h1>
+        <p>Área restrita — faça login para continuar</p>
+      </div>
+
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="vendedor">
+          <i class="fa-solid fa-ticket"></i> Vendedor
+        </button>
+        <button class="role-tab" data-role="admin">
+          <i class="fa-solid fa-shield-halved"></i> Administrador
+        </button>
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="login-field">
+        <label for="usernameInput"><i class="fa-solid fa-user"></i> Usuário</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="usernameInput" placeholder="seu.usuario" autocomplete="username" />
+        </div>
+      </div>
+
+      <div class="login-field">
+        <label for="passwordInput"><i class="fa-solid fa-lock"></i> Senha</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="passwordInput" placeholder="••••••••" autocomplete="current-password" />
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="loginBtn">
+        <i class="fa-solid fa-right-to-bracket"></i> Entrar
+      </button>
+
+      <p class="back-link">
+        <a href="/"><i class="fa-solid fa-arrow-left"></i> Voltar ao início</a>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const roleTabBtns = document.querySelectorAll('.role-tab');
+    const loginBtn    = document.getElementById('loginBtn');
+    const loginError  = document.getElementById('loginError');
+    const userInput   = document.getElementById('usernameInput');
+    const passInput   = document.getElementById('passwordInput');
+    let selectedRole  = 'vendedor';
+
+    roleTabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        roleTabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedRole = btn.dataset.role;
+        loginError.classList.remove('visible');
+      });
+    });
+
+    // Permite Enter para submeter
+    [userInput, passInput].forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
+    });
+
+    loginBtn.addEventListener('click', async () => {
+      loginError.classList.remove('visible');
+      const username = userInput.value.trim();
+      const password = passInput.value;
+
+      if (!username || !password) {
+        loginError.textContent = 'Preencha usuário e senha.';
+        loginError.classList.add('visible');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Entrando...';
+
+      try {
+        const r = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await r.json();
+
+        if (!r.ok) {
+          loginError.textContent = data.error || 'Credenciais incorretas.';
+          loginError.classList.add('visible');
+          return;
+        }
+
+        // Verifica se o role bate com a aba selecionada
+        if (selectedRole === 'admin' && data.role !== 'admin') {
+          loginError.textContent = 'Este usuário não tem acesso de administrador.';
+          loginError.classList.add('visible');
+          return;
+        }
+
+        // Salva token no sessionStorage
+        sessionStorage.setItem('ce_token', data.token);
+        sessionStorage.setItem('ce_role', data.role);
+        sessionStorage.setItem('ce_username', data.username);
+
+        // Redireciona conforme o papel
+        if (data.role === 'admin') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/vendedor';
+        }
+      } catch (err) {
+        loginError.textContent = 'Erro ao conectar ao servidor.';
+        loginError.classList.add('visible');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

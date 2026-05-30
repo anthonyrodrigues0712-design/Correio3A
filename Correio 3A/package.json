@@ -1,0 +1,13 @@
+{
+  "name": "correio-elegante-if",
+  "version": "1.0.0",
+  "description": "Correio elegante digital com Pix, JSON e painel admin",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "sqlite3": "^6.0.1"
+  }
+}

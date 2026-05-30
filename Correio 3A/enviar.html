@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enviar Recado | Correio Elegante</title>
+  <meta name="theme-color" content="#ff5471" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    select.field, select#recipientCourse {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm, 12px);
+      border: 2px solid rgba(255, 111, 174, 0.2);
+      background: rgba(255, 255, 255, 0.6);
+      color: var(--text, #4a2337);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .2s;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    select#recipientCourse:focus {
+      border-color: var(--primary, #ff6fae);
+    }
+  </style>
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+</head>
+<body class="landing-page" style="padding-top: 40px;">
+  <audio id="theme" loop autoplay>
+    <source src="media/Tema-Escrevendo-Carta.ogg" type="audio/ogg">
+    <source src="media/Tema-Escrevendo-Carta.m4a" type="audio/mp4">
+  </audio>
+  <div id="rain-container" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+
+  <div id="code-overlay" class="overlay-container">
+    <div class="envelope-wrapper">
+      <div class="envelope">
+        <div class="envelope-flap"></div>
+        <div class="envelope-body"></div>
+        <div class="code-box">
+          <h3>Giftcard</h3>
+          <input type="text" id="giftcardInput" placeholder="Digite seu código" autocomplete="off" />
+          <button id="btn-verificar" class="btn btn-primary">Validar Código</button>
+          <button id="btn-sem-codigo" class="btn btn-secondary" style="margin-top: 2px;">Não tenho um código</button>
+          <span id="code-error" class="error-msg"></span>
+
+          <div id="sem-codigo-info" style="display:none; margin-top: 12px; background: rgba(255,111,174,0.08); border: 1px solid rgba(255,111,174,0.2); border-radius: 12px; padding: 16px; text-align: left;">
+            <p style="margin: 0 0 10px; font-weight: 600; color: var(--text); font-size: 0.93rem;">Ainda não tem um código? Sem problemas! Compre um Giftcard por um desses canais:</p>
+            <ul style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px;">
+              <li style="color: var(--muted); font-size: 0.9rem;">Presencialmente com alguém do <strong style="color: var(--text);">3A de Informática</strong></li>
+              <li>
+                <a href="https://wa.me/5575999038401" target="_blank" rel="noopener"
+                   style="display:inline-flex; align-items:center; gap:7px; color:#25d366; font-weight:600; font-size:0.9rem; text-decoration:none;">
+                  <i class="fa-brands fa-whatsapp" style="font-size:1.1rem;"></i> Comprar via WhatsApp — (75) 99903-8401
+                </a>
+              </li>
+              <li>
+                <a href="https://instagram.com/terceiraoaif_" target="_blank" rel="noopener"
+                   style="display:inline-flex; align-items:center; gap:7px; font-weight:600; font-size:0.9rem; text-decoration:none;
+                          background: linear-gradient(90deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);
+                          -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">
+                  <i class="fa-brands fa-instagram" style="font-size:1.1rem; -webkit-text-fill-color:#cc2366;"></i>
+                  <span>Comprar via Instagram — @terceiraoaif_</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="page-content">
+    <section class="section">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <a href="/" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Voltar ao início</a>
+      </div>
+
+      <div class="section-header section-header-center">
+        <span class="eyebrow">Enviar recado</span>
+        <h2>Preencha os dados com carinho e envie sua carta.</h2>
+      </div>
+
+      <div class="form-layout">
+        <form id="booking-form" class="booking-form glass">
+
+          <!-- Destinatário -->
+          <div class="field">
+            <label for="recipientName"><i class="fa-solid fa-heart"></i> Para quem é a carta?</label>
+            <input id="recipientName" name="recipientName" type="text" placeholder="Nome de quem vai receber" required />
+          </div>
+
+          <!-- Sala e Curso do destinatário -->
+          <div class="grid-2">
+            <div class="field">
+              <label for="recipientClass"><i class="fa-solid fa-door-open"></i> Sala do destinatário</label>
+              <input id="recipientClass" name="recipientClass" type="text" placeholder="Ex: 3°A, 2°B, 1°C..." />
+            </div>
+            <div class="field">
+              <label for="recipientCourse"><i class="fa-solid fa-graduation-cap"></i> Curso</label>
+              <select id="recipientCourse" name="recipientCourse">
+                <option value="">Não informar</option>
+                <option value="Informática">Informática</option>
+                <option value="Edificações">Edificações</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Remetente: modo -->
+          <div class="field">
+            <label>Como deseja aparecer?</label>
+            <div class="segmented">
+              <button type="button" class="segmented-btn active" data-mode="identified"><i class="fa-solid fa-user"></i> Meu nome</button>
+              <button type="button" class="segmented-btn" data-mode="anonymous"><i class="fa-solid fa-user-secret"></i> Anônimo</button>
+            </div>
+            <input type="hidden" id="senderMode" value="identified" />
+          </div>
+
+          <!-- Remetente: nome e contato (ocultados no modo anônimo) -->
+          <div id="senderFields">
+            <div class="grid-2">
+              <div class="field">
+                <label for="senderName"><i class="fa-solid fa-pen"></i> Seu nome</label>
+                <input id="senderName" name="senderName" type="text" placeholder="Seu nome" required />
+              </div>
+              <div class="field">
+                <label for="senderContact"><i class="fa-solid fa-mobile-screen"></i> Seu contato</label>
+                <input id="senderContact" name="senderContact" type="text" placeholder="WhatsApp, Instagram..." required />
+              </div>
+            </div>
+          </div>
+
+          <!-- Música dedicada -->
+          <div class="field" style="display:none;">
+            <label for="youtubeLink"><i class="fa-brands fa-youtube"></i> Música dedicada (link do YouTube)</label>
+            <input id="youtubeLink" name="youtubeLink" type="url" placeholder="https://www.youtube.com/watch?v=..." />
+            <span class="field-hint">Opcional — cole o link de uma música especial para dedicar.</span>
+          </div>
+
+          <!-- Mensagem -->
+          <div class="field">
+            <label for="messageText"><i class="fa-solid fa-envelope-open-text"></i> Sua carta</label>
+            <textarea id="messageText" name="messageText" rows="7" placeholder="Escreva com carinho..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+            <i class="fa-solid fa-paper-plane"></i> Revisar e Enviar
+          </button>
+          <p class="form-footnote">
+            Antes de enviar, você poderá revisar todas as informações.
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal de Confirmação -->
+  <div class="modal" id="confirmModal" aria-hidden="true">
+    <div class="modal-backdrop" id="confirmBackdrop"></div>
+    <div class="modal-card glass">
+      <button class="modal-close" id="closeConfirmBtn" aria-label="Fechar">×</button>
+      <div class="modal-head">
+        <span class="eyebrow">Confirmar envio</span>
+        <h3>Tudo certo com sua carta?</h3>
+        <p>Verifique as informações antes de confirmar.</p>
+      </div>
+      <div class="summary-card" style="margin: 16px 0;">
+        <ul>
+          <li><strong>Para:</strong> <span id="confirmRecipient">-</span></li>
+          <li><strong>Sala:</strong> <span id="confirmClass">-</span></li>
+          <li><strong>Curso:</strong> <span id="confirmCourse">-</span></li>
+          <li><strong>De:</strong> <span id="confirmSender">-</span></li>
+          <li><strong>Contato:</strong> <span id="confirmContact">-</span></li>
+          <li><strong>Música:</strong> <span id="confirmMusic">-</span></li>
+          <li><strong>Itens inclusos:</strong></li>
+        </ul>
+        <div id="confirmBeneficios" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;"></div>
+        <ul style="margin:0;">
+          <li><strong>Mensagem:</strong></li>
+        </ul>
+        <blockquote id="confirmMessage" style="margin: 8px 0 0; padding: 10px 14px; border-left: 3px solid var(--color-primary, #ff5471); font-style: italic; white-space: pre-wrap; word-break: break-word;"></blockquote>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button type="button" class="btn btn-secondary" id="editBtn" style="flex:1;">
+          <i class="fa-solid fa-pen"></i> Editar
+        </button>
+        <button type="button" class="btn btn-primary" id="confirmSendBtn" style="flex:2;">
+          <i class="fa-solid fa-paper-plane"></i> Confirmar e Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stage da animação de envio -->
+  <div id="send-envelope-stage" aria-hidden="true">
+    <div class="fly-envelope" id="flyEnvelope">
+      <div class="fe-body"></div>
+      <div class="fe-bottom"></div>
+      <div class="fe-flap" id="flyFlap"></div>
+    </div>
+    <div class="fe-success-msg" id="feSuccessMsg">
+      <span class="fe-icon">💌</span>
+      <h2>Carta enviada!</h2>
+      <p>Sua mensagem está voando rumo ao coração certo.</p>
+      <button type="button" class="btn btn-primary" id="feCloseBtn">
+        <i class="fa-solid fa-heart"></i> Fechar
+      </button>
+    </div>
+  </div>
+
+</body>
+</html>

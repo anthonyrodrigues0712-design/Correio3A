@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Criar Giftcard | Correio Elegante</title>
+  <meta name="theme-color" content="#ff5471" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
+  <style>
+    .vendedor-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .vendedor-card {
+      width: 100%;
+      max-width: 480px;
+      padding: 40px;
+      border-radius: 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .vendedor-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .vendedor-header .v-icon {
+      font-size: 2.4rem;
+      display: block;
+      margin-bottom: 10px;
+      color: var(--color-primary, #ff5471);
+      animation: heartbeat 1.6s ease infinite;
+    }
+
+    .vendedor-header h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2.2rem;
+      color: var(--landing-hero, #ff3a5c);
+      margin: 0 0 4px;
+    }
+
+    .vendedor-header p {
+      color: var(--muted, #888);
+      font-size: .88rem;
+      margin: 0;
+    }
+
+    /* ── Benefícios ── */
+    .ben-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .ben-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border: 2px solid rgba(255, 84, 113, .15);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all .18s ease;
+      background: rgba(255, 84, 113, .02);
+      user-select: none;
+    }
+
+    .ben-item:hover {
+      border-color: rgba(255, 84, 113, .35);
+      background: rgba(255, 84, 113, .05);
+    }
+
+    .ben-item.checked {
+      border-color: var(--color-primary, #ff5471);
+      background: rgba(255, 84, 113, .08);
+    }
+
+    .ben-item input[type="checkbox"] {
+      display: none;
+    }
+
+    .ben-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(255, 84, 113, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all .18s ease;
+      color: white;
+      font-size: .75rem;
+    }
+
+    .ben-item.checked .ben-checkbox {
+      background: var(--color-primary, #ff5471);
+      border-color: var(--color-primary, #ff5471);
+    }
+
+    .ben-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+    .ben-info { flex: 1; }
+    .ben-name {
+      font-weight: 600;
+      font-size: .92rem;
+      color: var(--text);
+    }
+    .ben-item.checked .ben-name { color: var(--color-primary, #ff5471); }
+
+    .ben-price {
+      font-size: .78rem;
+      color: var(--muted, #888);
+      margin-top: 1px;
+    }
+
+    .ben-price-tag {
+      font-weight: 700;
+      font-size: .88rem;
+      color: var(--muted, #888);
+      flex-shrink: 0;
+      transition: color .18s;
+    }
+
+    .ben-item.checked .ben-price-tag {
+      color: var(--color-primary, #ff5471);
+    }
+
+    /* ── Total ── */
+    .total-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: rgba(255, 84, 113, .06);
+      border: 1.5px solid rgba(255, 84, 113, .18);
+      margin-bottom: 20px;
+    }
+
+    .total-label {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--text);
+    }
+
+    .total-label span {
+      display: block;
+      font-weight: 400;
+      font-size: .75rem;
+      color: var(--muted, #888);
+      margin-top: 2px;
+    }
+
+    .total-value {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--color-primary, #ff5471);
+      letter-spacing: -.02em;
+    }
+
+    /* ── Resultado ── */
+    .result-box {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      border-radius: 18px;
+      background: rgba(255, 84, 113, .05);
+      border: 2px solid rgba(255, 84, 113, .15);
+      text-align: center;
+      margin-top: 16px;
+      animation: fe-appear .45s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+
+    .result-box.visible { display: flex; }
+
+    .result-label {
+      font-weight: 600;
+      font-size: .9rem;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .result-code {
+      font-family: monospace;
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      color: var(--landing-hero, #ff3a5c);
+      background: rgba(255, 84, 113, .08);
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 1.5px dashed rgba(255, 84, 113, .3);
+      cursor: pointer;
+      transition: background .18s;
+    }
+
+    .result-code:hover { background: rgba(255, 84, 113, .15); }
+
+    .result-ben-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .result-ben-pill {
+      font-size: .78rem;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      background: rgba(255, 84, 113, .1);
+      color: var(--color-primary, #ff5471);
+      border: 1px solid rgba(255, 84, 113, .2);
+    }
+
+    .copy-hint { font-size: .75rem; color: var(--muted, #888); margin: 0; }
+
+    .copy-success {
+      color: #16a34a;
+      font-weight: 600;
+      font-size: .85rem;
+      display: none;
+    }
+
+    .vendedor-error {
+      display: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: rgba(239,68,68,.1);
+      color: #dc2626;
+      border: 1px solid rgba(239,68,68,.2);
+      font-size: .88rem;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .vendedor-error.visible { display: block; }
+
+    /* ── Card de imagem gerada ── */
+    .gc-image-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .gc-image-wrap.visible { display: flex; }
+
+    #gcCanvas {
+      border-radius: 18px;
+      box-shadow: 0 12px 40px rgba(255, 84, 113, .22);
+      max-width: 100%;
+    }
+
+    #qrHidden { position: absolute; left: -9999px; top: -9999px; }
+  </style>
+</head>
+<body class="landing-page" style="padding-top:0;">
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+
+  <div class="vendedor-page">
+    <div class="vendedor-card glass">
+
+      <div class="vendedor-header">
+        <i class="fa-solid fa-ticket v-icon"></i>
+        <h1>Criar Giftcard</h1>
+        <p>Selecione os benefícios e gere o código.</p>
+        <div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <a href="/admin" class="btn btn-secondary" style="font-size:.8rem;padding:7px 14px;" id="adminLink" style="display:none">
+            <i class="fa-solid fa-shield-halved"></i> Painel Admin
+          </a>
+          <button class="btn btn-secondary" id="vendedorLogoutBtn" style="font-size:.8rem;padding:7px 14px;">
+            <i class="fa-solid fa-right-from-bracket"></i> Sair
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de benefícios -->
+      <div class="ben-list">
+
+        <!-- Carta (base, sempre inclusa) -->
+        <div class="ben-item checked" style="cursor:default; opacity:.7;">
+          <div class="ben-checkbox"><i class="fa-solid fa-check"></i></div>
+          <span class="ben-icon">💌</span>
+          <div class="ben-info">
+            <div class="ben-name">Carta</div>
+            <div class="ben-price">Incluído em todos os giftcards</div>
+          </div>
+          <span class="ben-price-tag">R$ 2,00</span>
+        </div>
+
+        <!-- Música -->
+        <label class="ben-item" id="lbl-musica">
+          <input type="checkbox" id="chk-musica" value="musica" />
+          <div class="ben-checkbox"><i class="fa-solid fa-check"></i></div>
+          <span class="ben-icon">🎵</span>
+          <div class="ben-info">
+            <div class="ben-name">Música</div>
+            <div class="ben-price">Dedicatória musical no YouTube</div>
+          </div>
+          <span class="ben-price-tag">+ R$ 0,50</span>
+        </label>
+
+        <!-- Pirulito -->
+        <label class="ben-item" id="lbl-pirulito">
+          <input type="checkbox" id="chk-pirulito" value="pirulito" />
+          <div class="ben-checkbox"><i class="fa-solid fa-check"></i></div>
+          <span class="ben-icon">🍭</span>
+          <div class="ben-info">
+            <div class="ben-name">Pirulito</div>
+            <div class="ben-price">Um pirulito junto com a carta</div>
+          </div>
+          <span class="ben-price-tag">+ R$ 1,00</span>
+        </label>
+
+        <!-- Bombom -->
+        <label class="ben-item" id="lbl-bombom">
+          <input type="checkbox" id="chk-bombom" value="bombom" />
+          <div class="ben-checkbox"><i class="fa-solid fa-check"></i></div>
+          <span class="ben-icon">🍫</span>
+          <div class="ben-info">
+            <div class="ben-name">Bombom</div>
+            <div class="ben-price">Um bombom junto com a carta</div>
+          </div>
+          <span class="ben-price-tag">+ R$ 3,00</span>
+        </label>
+
+        <!-- Rosa -->
+        <label class="ben-item" id="lbl-rosa">
+          <input type="checkbox" id="chk-rosa" value="rosa" />
+          <div class="ben-checkbox"><i class="fa-solid fa-check"></i></div>
+          <span class="ben-icon">🌹</span>
+          <div class="ben-info">
+            <div class="ben-name">Flor</div>
+            <div class="ben-price">Uma rosa junto com a carta</div>
+          </div>
+          <span class="ben-price-tag">+ R$ 5,00</span>
+        </label>
+
+      </div>
+
+      <!-- Total -->
+      <div class="total-box">
+        <div class="total-label">
+          Total a cobrar
+          <span>Informe ao cliente antes de gerar</span>
+        </div>
+        <div class="total-value" id="totalValue">R$ 2,00</div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="gerarBtn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Giftcard
+      </button>
+
+      <div class="vendedor-error" id="vendedorError"></div>
+
+      <!-- Resultado: imagem gerada -->
+      <div class="gc-image-wrap" id="gcImageWrap">
+        <p style="font-weight:600;margin:0;text-align:center;">✨ Giftcard criado! Salve a imagem abaixo.</p>
+        <canvas id="gcCanvas"></canvas>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+          <a id="downloadBtn" class="btn btn-primary" download="giftcard.png">
+            <i class="fa-solid fa-download"></i> Baixar imagem
+          </a>
+          <button class="btn btn-secondary" id="shareBtn" style="display:none;">
+            <i class="fa-solid fa-share-nodes"></i> Compartilhar
+          </button>
+          <button class="btn btn-secondary" id="novoBtn">
+            <i class="fa-solid fa-plus"></i> Criar outro
+          </button>
+        </div>
+      </div>
+
+      <!-- QR code oculto para renderização -->
+      <div id="qrHidden"></div>
+
+    </div>
+  </div>
+
+  <script>
+    // Auth guard — apenas vendedor ou admin
+    (function() {
+      const token = sessionStorage.getItem('ce_token');
+      const role  = sessionStorage.getItem('ce_role');
+      if (!token || (role !== 'vendedor' && role !== 'admin')) {
+        window.location.href = '/login';
+      }
+    })();
+
+    // Helper autenticado
+    async function authFetch(url, opts = {}) {
+      const token = sessionStorage.getItem('ce_token');
+      return fetch(url, { ...opts, headers: { 'Content-Type': 'application/json', 'x-auth-token': token, ...(opts.headers||{}) } });
+    }
+
+    const PRECOS = {
+      base:     2.00,
+      musica:   0.50,
+      pirulito: 1.00,
+      bombom:   3.00,
+      rosa:     5.00,
+    };
+
+    const BENEFICIOS = [
+      { key: 'musica',   label: 'Música',   icon: '🎵' },
+      { key: 'pirulito', label: 'Pirulito', icon: '🍭' },
+      { key: 'bombom',   label: 'Bombom',   icon: '🍫' },
+      { key: 'rosa',     label: 'Flor',     icon: '🌹' },
+    ];
+
+    const totalEl     = document.getElementById('totalValue');
+    const gerarBtn    = document.getElementById('gerarBtn');
+    const gcImageWrap = document.getElementById('gcImageWrap');
+    const gcCanvas    = document.getElementById('gcCanvas');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const novoBtn     = document.getElementById('novoBtn');
+    const errBox      = document.getElementById('vendedorError');
+    const qrHidden    = document.getElementById('qrHidden');
+
+    function formatBRL(value) {
+      return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function updateTotal() {
+      let total = PRECOS.base;
+      BENEFICIOS.forEach(b => {
+        if (document.getElementById(`chk-${b.key}`).checked) total += PRECOS[b.key];
+      });
+      totalEl.textContent = formatBRL(total);
+    }
+
+    BENEFICIOS.forEach(b => {
+      const chk = document.getElementById(`chk-${b.key}`);
+      const lbl = document.getElementById(`lbl-${b.key}`);
+      chk.addEventListener('change', () => {
+        lbl.classList.toggle('checked', chk.checked);
+        updateTotal();
+        gcImageWrap.classList.remove('visible');
+        errBox.classList.remove('visible');
+      });
+    });
+
+    // Gera o QR code em div oculta e retorna como imagem
+    function gerarQR(url) {
+      return new Promise((resolve) => {
+        qrHidden.innerHTML = '';
+        const qr = new QRCode(qrHidden, {
+          text: url,
+          width: 220,
+          height: 220,
+          colorDark: '#1a0a0f',
+          colorLight: '#fff8fa',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        // QRCodeJS renderiza de forma síncrona mas precisa de um tick
+        setTimeout(() => {
+          const img = qrHidden.querySelector('img') || qrHidden.querySelector('canvas');
+          if (!img) { resolve(null); return; }
+          if (img.tagName === 'IMG') {
+            const i = new Image();
+            i.onload = () => resolve(i);
+            i.src = img.src;
+          } else {
+            resolve(img); // é um canvas direto
+          }
+        }, 80);
+      });
+    }
+
+    // Desenha o card no canvas e retorna data URL
+    async function desenharCard(codigo, beneficiosAtivos, total) {
+      const W = 600, H = 900;
+      const canvas = gcCanvas;
+      canvas.width  = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // ── Fundo com gradiente ──
+      const grad = ctx.createLinearGradient(0, 0, W, H);
+      grad.addColorStop(0,   '#fff0f4');
+      grad.addColorStop(0.5, '#fff8fa');
+      grad.addColorStop(1,   '#ffeaf0');
+      ctx.fillStyle = grad;
+      roundRect(ctx, 0, 0, W, H, 28);
+      ctx.fill();
+
+      // ── Borda rosa suave ──
+      ctx.strokeStyle = 'rgba(255,84,113,0.25)';
+      ctx.lineWidth = 2.5;
+      roundRect(ctx, 1.5, 1.5, W - 3, H - 3, 27);
+      ctx.stroke();
+
+      // ── Faixa superior ──
+      const faixaGrad = ctx.createLinearGradient(0, 0, W, 0);
+      faixaGrad.addColorStop(0, '#ff5471');
+      faixaGrad.addColorStop(1, '#ff8fa3');
+      ctx.fillStyle = faixaGrad;
+      roundRectTop(ctx, 0, 0, W, 110, 28);
+      ctx.fill();
+
+      // ── Título na faixa ──
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 15px Poppins, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('CORREIO ELEGANTE · 3° ANO 2026', W / 2, 40);
+
+      ctx.font = 'bold 36px Dancing Script, cursive';
+      ctx.fillStyle = '#fff';
+      ctx.fillText('Giftcard', W / 2, 88);
+
+      // ── Código ──
+      ctx.fillStyle = '#2d0a14';
+      ctx.font = 'bold 52px monospace';
+      ctx.textAlign = 'center';
+      ctx.letterSpacing = '6px';
+      ctx.fillText(codigo, W / 2, 190);
+      ctx.letterSpacing = '0px';
+
+      // Linha separadora pontilhada
+      ctx.setLineDash([6, 5]);
+      ctx.strokeStyle = 'rgba(255,84,113,0.22)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(40, 215); ctx.lineTo(W - 40, 215); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // ── Benefícios ──
+      ctx.font = '600 13px Poppins, sans-serif';
+      ctx.fillStyle = '#c0687a';
+      ctx.textAlign = 'center';
+      ctx.fillText('BENEFÍCIOS INCLUSOS', W / 2, 248);
+
+      const todosItens = [
+        { icon: '💌', label: 'Carta', preco: 'R$ 2,00', incluso: true },
+        { icon: '🎵', label: 'Música',   preco: '+ R$ 0,50', incluso: beneficiosAtivos.musica },
+        { icon: '🍭', label: 'Pirulito', preco: '+ R$ 1,00', incluso: beneficiosAtivos.pirulito },
+        { icon: '🍫', label: 'Bombom',   preco: '+ R$ 3,00', incluso: beneficiosAtivos.bombom },
+        { icon: '🌹', label: 'Flor',     preco: '+ R$ 5,00', incluso: beneficiosAtivos.rosa },
+      ];
+
+      const itemH = 56;
+      const startY = 268;
+      const padX = 40;
+
+      todosItens.forEach((item, i) => {
+        const y = startY + i * itemH;
+        const alpha = item.incluso ? 1 : 0.22;
+        ctx.globalAlpha = alpha;
+
+        // Fundo do item
+        if (item.incluso) {
+          ctx.fillStyle = 'rgba(255,84,113,0.07)';
+          roundRect(ctx, padX, y, W - padX * 2, itemH - 6, 12);
+          ctx.fill();
+        }
+
+        // Ícone
+        ctx.font = '24px serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(item.icon, padX + 14, y + 33);
+
+        // Label
+        ctx.font = item.incluso ? 'bold 15px Poppins, sans-serif' : '15px Poppins, sans-serif';
+        ctx.fillStyle = item.incluso ? '#2d0a14' : '#888';
+        ctx.fillText(item.label, padX + 50, y + 34);
+
+        // Preço à direita
+        ctx.textAlign = 'right';
+        ctx.font = 'bold 13px Poppins, sans-serif';
+        ctx.fillStyle = item.incluso ? '#ff5471' : '#aaa';
+        ctx.fillText(item.preco, W - padX - 14, y + 34);
+
+        ctx.globalAlpha = 1;
+      });
+
+      // ── Total ──
+      const totalY = startY + todosItens.length * itemH + 8;
+      const totalGrad = ctx.createLinearGradient(padX, totalY, W - padX, totalY);
+      totalGrad.addColorStop(0, '#ff5471');
+      totalGrad.addColorStop(1, '#ff8fa3');
+      ctx.fillStyle = totalGrad;
+      roundRect(ctx, padX, totalY, W - padX * 2, 54, 14);
+      ctx.fill();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 14px Poppins, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('TOTAL', padX + 18, totalY + 33);
+      ctx.font = 'bold 22px Poppins, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(total, W - padX - 18, totalY + 34);
+
+      // ── QR Code ──
+      const qrUrl = `${window.location.origin}/enviar?codigo=${encodeURIComponent(codigo)}`;
+      const qrImg = await gerarQR(qrUrl);
+      const qrSize = 160;
+      const qrX = (W - qrSize) / 2;
+      const qrY = totalY + 72;
+
+      if (qrImg) {
+        // Fundo branco arredondado para o QR
+        ctx.fillStyle = '#fff';
+        roundRect(ctx, qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 14);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255,84,113,0.18)';
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, qrX - 10, qrY - 10, qrSize + 20, qrSize + 20, 14);
+        ctx.stroke();
+        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+      }
+
+      // Texto abaixo do QR
+      ctx.fillStyle = '#c0687a';
+      ctx.font = '600 11px Poppins, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Escaneie para ir direto à página de envio', W / 2, qrY + qrSize + 24);
+
+      // ── Rodapé ──
+      ctx.fillStyle = 'rgba(192,104,122,0.5)';
+      ctx.font = '11px Poppins, sans-serif';
+      ctx.fillText('Correio Elegante · 3° Ano de Informática 2026', W / 2, H - 18);
+
+      return canvas.toDataURL('image/png');
+    }
+
+    // Helpers para canvas
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function roundRectTop(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h);
+      ctx.lineTo(x, y + h);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    gerarBtn.addEventListener('click', async () => {
+      gerarBtn.disabled = true;
+      gerarBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
+      errBox.classList.remove('visible');
+      gcImageWrap.classList.remove('visible');
+
+      const body = {};
+      BENEFICIOS.forEach(b => { body[b.key] = document.getElementById(`chk-${b.key}`).checked; });
+
+      try {
+        const r = await authFetch('/api/admin/giftcards/gerar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Erro ao gerar.');
+
+        const total = totalEl.textContent;
+        const dataUrl = await desenharCard(data.codigo, body, total);
+
+        downloadBtn.href = dataUrl;
+        downloadBtn.download = `giftcard-${data.codigo}.png`;
+
+        // Mostra botão compartilhar apenas se Web Share API suportar arquivos
+        const shareBtn = document.getElementById('shareBtn');
+        if (navigator.canShare) {
+          shareBtn.style.display = '';
+          shareBtn._dataUrl = dataUrl;
+          shareBtn._codigo  = data.codigo;
+        } else {
+          shareBtn.style.display = 'none';
+        }
+
+        gcImageWrap.classList.add('visible');
+
+      } catch (e) {
+        errBox.textContent = e.message;
+        errBox.classList.add('visible');
+      } finally {
+        gerarBtn.disabled = false;
+        gerarBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Giftcard';
+      }
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('shareBtn');
+      const dataUrl = btn._dataUrl;
+      const codigo  = btn._codigo;
+      if (!dataUrl) return;
+
+      try {
+        // Converte dataURL para Blob/File
+        const res  = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], `giftcard-${codigo}.png`, { type: 'image/png' });
+
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: `Giftcard ${codigo} — Correio Elegante`,
+            text:  `Seu giftcard do Correio Elegante! Código: ${codigo}`,
+            files: [file]
+          });
+        } else {
+          // Fallback: compartilha só o link sem imagem
+          await navigator.share({
+            title: `Giftcard ${codigo} — Correio Elegante`,
+            text:  `Seu giftcard do Correio Elegante! Código: ${codigo}`,
+            url:   `${window.location.origin}/enviar?codigo=${encodeURIComponent(codigo)}`
+          });
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          alert('Não foi possível compartilhar. Use o botão Baixar imagem.');
+        }
+      }
+    });
+
+    novoBtn.addEventListener('click', () => {
+      gcImageWrap.classList.remove('visible');
+      errBox.classList.remove('visible');
+      BENEFICIOS.forEach(b => {
+        const chk = document.getElementById(`chk-${b.key}`);
+        chk.checked = false;
+        document.getElementById(`lbl-${b.key}`).classList.remove('checked');
+      });
+      updateTotal();
+    });
+
+    // Logout
+    document.getElementById('vendedorLogoutBtn').addEventListener('click', async () => {
+      await authFetch('/api/auth/logout', { method: 'POST' });
+      sessionStorage.clear();
+      window.location.href = '/login';
+    });
+
+    // Mostra link do admin se for admin
+    if (sessionStorage.getItem('ce_role') === 'admin') {
+      document.getElementById('adminLink').style.display = '';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin | Correio Elegante</title>
+  <meta name="theme-color" content="#ff5471" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer" />
+  <script defer src="admin.js"></script>
+  <style>
+    .admin-tabs { display:flex; gap:8px; margin-bottom:24px; border-bottom:2px solid rgba(255,84,113,.15); padding-bottom:0; }
+    .admin-tab  { background:none; border:none; cursor:pointer; font-family:inherit; font-size:.95rem; font-weight:600;
+                  color:var(--muted,#888); padding:10px 20px; border-bottom:3px solid transparent; margin-bottom:-2px;
+                  transition:color .2s,border-color .2s; }
+    .admin-tab.active { color:var(--color-primary,#ff5471); border-bottom-color:var(--color-primary,#ff5471); }
+    .tab-panel { display:none; } .tab-panel.active { display:block; }
+
+    /* Giftcard table */
+    .gc-table-wrap { overflow-x:auto; }
+    .gc-table { width:100%; border-collapse:collapse; font-size:.88rem; }
+    .gc-table th { text-align:left; padding:10px 14px; font-weight:600; color:var(--muted,#888);
+                   border-bottom:2px solid rgba(255,84,113,.1); white-space:nowrap; }
+    .gc-table td { padding:10px 14px; border-bottom:1px solid rgba(255,84,113,.07); vertical-align:middle; }
+    .gc-table tr:hover td { background:rgba(255,84,113,.03); }
+    .gc-code-cell { font-family:monospace; font-size:.9rem; font-weight:700; letter-spacing:.04em; }
+
+    /* Modal de giftcards */
+    .gc-modal-body { display:flex; flex-direction:column; gap:18px; }
+    .gc-tab-btns   { display:flex; gap:8px; }
+    .gc-tab-btn    { flex:1; padding:10px; border:2px solid rgba(255,84,113,.2); border-radius:10px; background:none;
+                     cursor:pointer; font-family:inherit; font-weight:600; color:var(--muted,#888); transition:.2s; }
+    .gc-tab-btn.active { border-color:var(--color-primary,#ff5471); color:var(--color-primary,#ff5471);
+                         background:rgba(255,84,113,.06); }
+    .gc-import-panel { display:none; flex-direction:column; gap:10px; }
+    .gc-import-panel.visible { display:flex; }
+    .gc-auto-panel   { display:none; flex-direction:column; gap:10px; }
+    .gc-auto-panel.visible   { display:flex; }
+    .gc-feedback { padding:12px 16px; border-radius:10px; font-size:.9rem; display:none; }
+    .gc-feedback.success { display:block; background:rgba(34,197,94,.1); color:#16a34a; border:1px solid rgba(34,197,94,.2); }
+    .gc-feedback.error   { display:block; background:rgba(239,68,68,.1);  color:#dc2626; border:1px solid rgba(239,68,68,.2); }
+    .gc-feedback.warn    { display:block; background:rgba(234,179,8,.1);  color:#b45309; border:1px solid rgba(234,179,8,.2); }
+    .gc-repeat-list { margin-top:6px; font-size:.8rem; font-family:monospace; word-break:break-all; }
+    textarea.gc-import-area { min-height:120px; resize:vertical; font-family:monospace; font-size:.85rem; }
+
+    .gc-ben-group { display:flex; flex-wrap:wrap; gap:8px; }
+    .gc-ben-label { display:flex; align-items:center; gap:6px; padding:7px 14px;
+                    border:2px solid rgba(255,84,113,.2); border-radius:20px; cursor:pointer;
+                    font-size:.85rem; font-weight:600; color:var(--muted,#888); transition:.2s;
+                    user-select:none; }
+    .gc-ben-label:has(input:checked) { border-color:var(--color-primary,#ff5471);
+                                        color:var(--color-primary,#ff5471);
+                                        background:rgba(255,84,113,.07); }
+    .gc-ben-label input { display:none; }
+    .gc-ben-icon { font-size:1rem; }
+    .gc-ben-pills { display:flex; flex-wrap:wrap; gap:4px; }
+    .gc-ben-pill  { font-size:.72rem; padding:2px 8px; border-radius:20px; font-weight:700;
+                    background:rgba(255,84,113,.1); color:var(--color-primary,#ff5471);
+                    border:1px solid rgba(255,84,113,.2); white-space:nowrap; }
+  </style>
+</head>
+<body class="admin-body">
+<main class="admin-shell">
+
+  <aside class="admin-sidebar glass">
+    <div class="brand admin-brand">
+      <div>
+        <strong>Painel — Correio Elegante</strong><br>
+        <span>3° Ano de Informática 2026</span>
+      </div>
+    </div>
+
+    <div class="admin-note">
+      <h3>Informações de uso</h3>
+      <p>Gerencie as cartas recebidas e os giftcards disponíveis em uma única tela.</p>
+    </div>
+
+    <nav class="admin-nav" id="msgFilterNav">
+      <button class="admin-nav-btn active" data-filter="all"><i class="fa-solid fa-list"></i> Todos</button>
+      <button class="admin-nav-btn" data-filter="approved"><i class="fa-solid fa-circle-check"></i> Aprovados</button>
+      <button class="admin-nav-btn" data-filter="pending_review"><i class="fa-solid fa-clock"></i> Pendentes</button>
+      <button class="admin-nav-btn" data-filter="rejected"><i class="fa-solid fa-circle-xmark"></i> Rejeitados</button>
+      <button class="admin-nav-btn" data-filter="test"><i class="fa-solid fa-flask"></i> Testes</button>
+    </nav>
+  </aside>
+
+  <section class="admin-content">
+    <header class="admin-header glass">
+      <div><h1>Painel de Administração</h1></div>
+      <div class="admin-actions">
+        <button class="btn btn-secondary" id="refreshBtn"><i class="fa-solid fa-rotate"></i> Atualizar</button>
+      </div>
+    </header>
+
+    <!-- Abas principais -->
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-tab="cartas"><i class="fa-solid fa-envelope"></i> Cartas</button>
+      <button class="admin-tab" data-tab="giftcards"><i class="fa-solid fa-ticket"></i> Giftcards</button>
+      <button class="admin-tab" data-tab="usuarios"><i class="fa-solid fa-users"></i> Usuários</button>
+    </div>
+
+    <!-- ── ABA: CARTAS ── -->
+    <div class="tab-panel active" id="tab-cartas">
+      <section class="stats-grid" id="statsGrid">
+        <article class="stat-card glass"><span>Total</span><strong id="statTotal">0</strong></article>
+        <article class="stat-card glass"><span>Aprovados</span><strong id="statApproved">0</strong></article>
+        <article class="stat-card glass"><span>Pendentes</span><strong id="statPending">0</strong></article>
+        <article class="stat-card glass"><span>Anônimos</span><strong id="statAnonymous">0</strong></article>
+        <article class="stat-card glass"><span>Com música</span><strong id="statMusic">0</strong></article>
+      </section>
+
+      <section class="admin-table-wrap glass">
+        <div class="admin-table-head">
+          <h2>Cartas recebidas</h2>
+          <div class="search-wrap">
+            <input id="searchInput" type="search" placeholder="Buscar por nome, mensagem..." />
+          </div>
+        </div>
+        <div id="emptyState" class="empty-state">
+          <i class="fa-solid fa-envelope-open"></i>
+          <p>Nenhuma carta encontrada.</p>
+        </div>
+        <div id="cardsContainer" class="cards-container"></div>
+      </section>
+    </div>
+
+    <!-- ── ABA: GIFTCARDS ── -->
+    <div class="tab-panel" id="tab-giftcards">
+      <section class="stats-grid">
+        <article class="stat-card glass"><span>Total</span><strong id="gcStatTotal">0</strong></article>
+        <article class="stat-card glass"><span>Disponíveis</span><strong id="gcStatValidos">0</strong></article>
+        <article class="stat-card glass"><span>Utilizados</span><strong id="gcStatUsados">0</strong></article>
+      </section>
+
+      <section class="admin-table-wrap glass">
+        <div class="admin-table-head">
+          <h2>Giftcards</h2>
+          <div class="admin-actions" style="display:flex;gap:8px;">
+            <input id="gcSearch" type="search" placeholder="Buscar código..." style="padding:8px 12px;border-radius:8px;border:1px solid rgba(255,84,113,.2);background:var(--glass-bg,rgba(255,255,255,.05));font-family:inherit;font-size:.88rem;" />
+            <button class="btn btn-primary btn-small" id="openGcModalBtn">
+              <i class="fa-solid fa-plus"></i> Adicionar
+            </button>
+          </div>
+        </div>
+
+        <div id="gcEmptyState" class="empty-state">
+          <i class="fa-solid fa-ticket"></i>
+          <p>Nenhum giftcard encontrado.</p>
+        </div>
+
+        <div class="gc-table-wrap">
+          <table class="gc-table" id="gcTable" style="display:none;">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Benefícios</th>
+                <th>Status</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody id="gcTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── ABA: USUÁRIOS ── -->
+    <div class="tab-panel" id="tab-usuarios">
+      <section class="admin-table-wrap glass">
+        <div class="admin-table-head">
+          <h2>Usuários do sistema</h2>
+          <div class="admin-actions" style="display:flex;gap:8px;">
+            <button class="btn btn-primary btn-small" id="openUserModalBtn">
+              <i class="fa-solid fa-user-plus"></i> Novo usuário
+            </button>
+          </div>
+        </div>
+
+        <div id="usersEmptyState" class="empty-state">
+          <i class="fa-solid fa-users"></i>
+          <p>Nenhum usuário encontrado.</p>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="gc-table" id="usersTable">
+            <thead>
+              <tr>
+                <th>Usuário</th>
+                <th>Função</th>
+                <th>Criado em</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<!-- Modal detalhe carta -->
+<div class="modal" id="detailModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close="detail"></div>
+  <div class="modal-card glass admin-detail-card">
+    <button class="modal-close" data-close="detail" aria-label="Fechar">×</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- Modal adicionar giftcard -->
+<div class="modal" id="gcModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close="gc"></div>
+  <div class="modal-card glass" style="max-width:520px;">
+    <button class="modal-close" data-close="gc" aria-label="Fechar">×</button>
+    <div class="modal-head">
+      <span class="eyebrow">Giftcards</span>
+      <h3>Adicionar códigos</h3>
+    </div>
+
+    <div class="gc-modal-body">
+      <div class="gc-tab-btns">
+        <button class="gc-tab-btn active" data-gcmode="auto">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar aleatório
+        </button>
+        <button class="gc-tab-btn" data-gcmode="import">
+          <i class="fa-solid fa-file-import"></i> Importar códigos
+        </button>
+      </div>
+
+      <!-- Painel: gerar automático -->
+      <div class="gc-auto-panel visible" id="gcAutoPanel">
+        <p style="color:var(--muted);font-size:.9rem;">
+          Gera um código único no formato <code>CE-XXXX-XXXX</code> e salva diretamente no banco de dados.
+        </p>
+        <div id="gcAutoBeneficios" class="gc-ben-group"></div>
+        <button class="btn btn-primary" id="gcGerarBtn">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar código
+        </button>
+      </div>
+
+      <!-- Painel: importar -->
+      <div class="gc-import-panel" id="gcImportPanel">
+        <p style="color:var(--muted);font-size:.9rem;">
+          Digite os códigos separados por vírgula. Duplicatas no banco serão ignoradas automaticamente.
+        </p>
+        <textarea class="gc-import-area field textarea" id="gcImportInput"
+          placeholder="CODIGO1, CODIGO2, CODIGO3, ..."></textarea>
+        <p style="color:var(--muted);font-size:.9rem;margin-top:4px;">Benefícios para todos os códigos importados:</p>
+        <div id="gcImportBeneficios" class="gc-ben-group"></div>
+        <button class="btn btn-primary" id="gcImportBtn">
+          <i class="fa-solid fa-file-import"></i> Importar códigos
+        </button>
+      </div>
+
+      <div class="gc-feedback" id="gcFeedback"></div>
+    </div>
+  </div>
+</div>
+<!-- Modal adicionar/editar usuário -->
+<div class="modal" id="userModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close="user"></div>
+  <div class="modal-card glass" style="max-width:460px;">
+    <button class="modal-close" data-close="user" aria-label="Fechar">×</button>
+    <div class="modal-head">
+      <span class="eyebrow">Usuários</span>
+      <h3 id="userModalTitle">Novo usuário</h3>
+      <p id="userModalSubtitle" style="color:var(--muted);font-size:.9rem;margin:4px 0 0;"></p>
+    </div>
+
+    <div class="gc-modal-body">
+      <div class="login-field" style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-weight:600;font-size:.88rem;">Nome de usuário</label>
+        <input type="text" id="userModalUsername" placeholder="ex: joao.silva" class="field"
+          style="padding:10px 14px;border-radius:10px;border:2px solid rgba(255,84,113,.2);background:rgba(255,255,255,.5);font-family:inherit;" />
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-weight:600;font-size:.88rem;">Senha</label>
+        <input type="password" id="userModalPassword" placeholder="••••••••" class="field"
+          style="padding:10px 14px;border-radius:10px;border:2px solid rgba(255,84,113,.2);background:rgba(255,255,255,.5);font-family:inherit;" />
+        <span id="userModalPasswordHint" style="font-size:.8rem;color:var(--muted);">Mínimo de 6 caracteres.</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <label style="font-weight:600;font-size:.88rem;">Função</label>
+        <select id="userModalRole" class="field"
+          style="padding:10px 14px;border-radius:10px;border:2px solid rgba(255,84,113,.2);background:rgba(255,255,255,.5);font-family:inherit;">
+          <option value="vendedor">Vendedor</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+
+      <div class="gc-feedback" id="userModalFeedback"></div>
+
+      <button class="btn btn-primary" id="userModalSaveBtn">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

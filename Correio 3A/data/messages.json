@@ -1,0 +1,86 @@
+{
+  "messages": [
+    {
+      "id": "MSG-1780146349700-d9f8e7",
+      "recipientName": "Irlan lindo",
+      "recipientClass": "2° B",
+      "recipientCourse": "Edificações",
+      "messageText": "Continue...",
+      "senderMode": "anonymous",
+      "senderName": "Anônimo",
+      "senderContact": "",
+      "youtubeLink": "",
+      "beneficios": {
+        "musica": false,
+        "bombom": true,
+        "rosa": false,
+        "pirulito": true
+      },
+      "paymentMethod": "giftcard",
+      "paymentStatus": "approved",
+      "codigoGiftcard": "ERK-947",
+      "createdAt": "2026-05-30T13:05:49.700Z",
+      "updatedAt": "2026-05-30T13:05:49.700Z"
+    },
+    {
+      "id": "MSG-1780098592379-e2a4cc",
+      "recipientName": "Robinho",
+      "messageText": "MALA",
+      "senderMode": "identified",
+      "senderName": "Raul",
+      "senderContact": "raulmala",
+      "youtubeLink": "https://youtu.be/KBXePnsXHHI?si=1yMS0fq4rcBWxg3M",
+      "beneficios": {
+        "musica": true,
+        "bombom": true,
+        "rosa": true,
+        "pirulito": false
+      },
+      "paymentMethod": "giftcard",
+      "paymentStatus": "approved",
+      "codigoGiftcard": "WVB-274",
+      "createdAt": "2026-05-29T23:49:52.379Z",
+      "updatedAt": "2026-05-29T23:49:52.379Z"
+    },
+    {
+      "id": "MSG-1780098008079-627df4",
+      "recipientName": "Paty",
+      "messageText": "kioioi",
+      "senderMode": "anonymous",
+      "senderName": "Anônimo",
+      "senderContact": "",
+      "youtubeLink": "https://youtu.be/KBXePnsXHHI?si=1yMS0fq4rcBWxg3M",
+      "beneficios": {
+        "musica": true,
+        "bombom": true,
+        "rosa": true,
+        "pirulito": true
+      },
+      "paymentMethod": "giftcard",
+      "paymentStatus": "approved",
+      "codigoGiftcard": "RZV-935",
+      "createdAt": "2026-05-29T23:40:08.079Z",
+      "updatedAt": "2026-05-29T23:40:08.079Z"
+    },
+    {
+      "id": "MSG-1780096943179-b4c06e",
+      "recipientName": "TestandoKEIVINHO",
+      "messageText": "SACO",
+      "senderMode": "anonymous",
+      "senderName": "Anônimo",
+      "senderContact": "",
+      "youtubeLink": "https://youtu.be/KBXePnsXHHI?si=1yMS0fq4rcBWxg3M",
+      "beneficios": {
+        "musica": true,
+        "bombom": true,
+        "rosa": true,
+        "pirulito": true
+      },
+      "paymentMethod": "giftcard",
+      "paymentStatus": "approved",
+      "codigoGiftcard": "KRJ-724",
+      "createdAt": "2026-05-29T23:22:23.180Z",
+      "updatedAt": "2026-05-29T23:22:23.180Z"
+    }
+  ]
+}
