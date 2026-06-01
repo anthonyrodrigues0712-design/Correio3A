@@ -115,8 +115,11 @@
       <section class="admin-table-wrap glass">
         <div class="admin-table-head">
           <h2>Cartas recebidas</h2>
-          <div class="search-wrap">
+          <div class="search-wrap" style="display:flex;gap:8px;align-items:center;">
             <input id="searchInput" type="search" placeholder="Buscar por nome, mensagem..." />
+            <button class="btn btn-danger btn-small" id="btnApagarTodasMensagens" title="Apagar todas as mensagens">
+              <i class="fa-solid fa-trash"></i> Apagar tudo
+            </button>
           </div>
         </div>
         <div id="emptyState" class="empty-state">
@@ -142,6 +145,9 @@
             <input id="gcSearch" type="search" placeholder="Buscar código..." style="padding:8px 12px;border-radius:8px;border:1px solid rgba(255,84,113,.2);background:var(--glass-bg,rgba(255,255,255,.05));font-family:inherit;font-size:.88rem;" />
             <button class="btn btn-primary btn-small" id="openGcModalBtn">
               <i class="fa-solid fa-plus"></i> Adicionar
+            </button>
+            <button class="btn btn-danger btn-small" id="btnApagarTodosGiftcards" title="Apagar todos os giftcards">
+              <i class="fa-solid fa-trash"></i> Apagar tudo
             </button>
           </div>
         </div>

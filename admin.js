@@ -593,5 +593,35 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Init ─────────────────────────────────────────────────────────────────────
+  // ── Apagar tudo ──────────────────────────────────────────────────────────────
+
+  const btnApagarMensagens = document.getElementById('btnApagarTodasMensagens');
+  if (btnApagarMensagens) {
+    btnApagarMensagens.addEventListener('click', async () => {
+      if (!confirm('Tem certeza que deseja apagar TODAS as mensagens? Esta ação não pode ser desfeita.')) return;
+      try {
+        const r = await authFetch('/api/admin/messages', { method: 'DELETE' });
+        const data = await r.json();
+        if (!r.ok) { alert(data.error || 'Erro ao apagar mensagens.'); return; }
+        alert('Todas as mensagens foram apagadas.');
+        await loadMessages();
+      } catch { alert('Erro ao conectar ao servidor.'); }
+    });
+  }
+
+  const btnApagarGiftcards = document.getElementById('btnApagarTodosGiftcards');
+  if (btnApagarGiftcards) {
+    btnApagarGiftcards.addEventListener('click', async () => {
+      if (!confirm('Tem certeza que deseja apagar TODOS os giftcards? Esta ação não pode ser desfeita.')) return;
+      try {
+        const r = await authFetch('/api/admin/giftcards', { method: 'DELETE' });
+        const data = await r.json();
+        if (!r.ok) { alert(data.error || 'Erro ao apagar giftcards.'); return; }
+        alert(`${data.deletados} giftcard(s) apagado(s).`);
+        await loadGiftcards();
+      } catch { alert('Erro ao conectar ao servidor.'); }
+    });
+  }
+
   loadMessages();
 });

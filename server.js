@@ -549,6 +549,24 @@ app.post('/api/admin/giftcards/importar', requireAuth('vendedor'), (req, res) =>
   });
 });
 
+// Apaga todos os giftcards (somente admin)
+app.delete('/api/admin/giftcards', requireAuth('admin'), (_req, res) => {
+  db.run(`DELETE FROM cards`, [], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ ok: true, deletados: this.changes });
+  });
+});
+
+// Apaga todas as mensagens (somente admin)
+app.delete('/api/admin/messages', requireAuth('admin'), async (_req, res) => {
+  try {
+    await writeMessages([]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Páginas estáticas ────────────────────────────────────────────────────────
 
 app.get('/',        (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
