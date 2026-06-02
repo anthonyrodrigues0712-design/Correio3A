@@ -190,12 +190,165 @@ document.addEventListener('DOMContentLoaded', () => {
           <i class="fa-solid fa-xmark"></i> Rejeitar</button>
         <button class="btn btn-secondary btn-small" data-pending="${escapeHtml(item.id)}">
           <i class="fa-solid fa-clock"></i> Pendente</button>
+        <button class="btn btn-secondary btn-small" data-export-pdf style="margin-left:auto;color:#7c3aed;border-color:#7c3aed;">
+          <i class="fa-solid fa-file-pdf"></i> Exportar PDF</button>
       </div>`;
 
     detailContent.querySelector('[data-approve]')?.addEventListener('click', async e => { await updateStatus(e.currentTarget.dataset.approve, 'approved'); closeModal('detailModal'); });
     detailContent.querySelector('[data-reject]')?.addEventListener('click', async e => { await updateStatus(e.currentTarget.dataset.reject, 'rejected'); closeModal('detailModal'); });
     detailContent.querySelector('[data-pending]')?.addEventListener('click', async e => { await updateStatus(e.currentTarget.dataset.pending, 'pending_review'); closeModal('detailModal'); });
+    detailContent.querySelector('[data-export-pdf]')?.addEventListener('click', () => exportarCartaPDF(item));
     openModal('detailModal');
+  }
+
+  // ── Exportar carta individual como PDF ────────────────────────────────────────
+  function exportarCartaPDF(item) {
+    const anon = item.senderMode === 'anonymous';
+    const ben  = item.beneficios || {};
+    const BEN_ICONS_TEXT  = { musica: '🎵', bombom: '🍫', rosa: '🌹', pirulito: '🍭' };
+    const BEN_LABELS_TEXT = { musica: 'Música', bombom: 'Bombom', rosa: 'Flor', pirulito: 'Pirulito' };
+
+    const itens = ['💌 Carta', ...Object.entries(ben).filter(([,v])=>v)
+      .map(([k]) => `${BEN_ICONS_TEXT[k]||'🎁'} ${BEN_LABELS_TEXT[k]||k}`)].join(' · ');
+
+    const printWin = window.open('', '_blank', 'width=800,height=900');
+    printWin.document.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Carta — ${escapeHtml(item.recipientName)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #fff;
+      color: #1a0a0f;
+      padding: 48px 56px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #ff5471;
+      padding-bottom: 16px;
+      margin-bottom: 28px;
+    }
+    .header-left h1 {
+      font-family: 'Dancing Script', cursive;
+      font-size: 2rem;
+      color: #ff5471;
+    }
+    .header-left p { font-size: .82rem; color: #888; margin-top: 2px; }
+    .badge {
+      padding: 4px 14px; border-radius: 20px; font-size: .78rem; font-weight: 700;
+      background: #fde8ec; color: #ff5471; border: 1px solid #ff5471;
+    }
+    .section { margin-bottom: 22px; }
+    .section h2 {
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .1em;
+      color: #ff5471; font-weight: 700; margin-bottom: 8px;
+    }
+    .recipient-name {
+      font-size: 1.6rem; font-weight: 700; color: #1a0a0f;
+    }
+    .meta-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      background: #fff8fa; border-radius: 10px;
+      padding: 14px 18px; margin-top: 4px;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-item span:first-child { font-size: .72rem; color: #888; text-transform: uppercase; letter-spacing: .06em; }
+    .meta-item span:last-child  { font-size: .9rem; font-weight: 600; color: #1a0a0f; }
+    .mensagem {
+      background: #fff8fa;
+      border-left: 4px solid #ff5471;
+      border-radius: 0 12px 12px 0;
+      padding: 18px 20px;
+      font-size: .97rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-style: italic;
+      color: #2a0a14;
+    }
+    .itens {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;
+    }
+    .item-pill {
+      padding: 4px 12px; border-radius: 20px; font-size: .8rem; font-weight: 700;
+      background: #fde8ec; color: #ff5471; border: 1px solid #ffb3c1;
+    }
+    .musica {
+      background: #fff3cd; border-radius: 8px;
+      padding: 10px 14px; font-size: .85rem; color: #856404;
+      word-break: break-all; margin-top: 6px;
+    }
+    .footer {
+      margin-top: 36px; padding-top: 14px;
+      border-top: 1px solid #ffe0e8;
+      font-size: .75rem; color: #bbb;
+      display: flex; justify-content: space-between;
+    }
+    @media print {
+      body { padding: 32px 40px; }
+      @page { margin: 1cm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <h1>💌 Correio Elegante</h1>
+      <p>3° Ano de Informática 2026</p>
+    </div>
+    <span class="badge">${statusLabel(item.paymentStatus)}</span>
+  </div>
+
+  <div class="section">
+    <h2>Destinatário</h2>
+    <div class="recipient-name">Para: ${escapeHtml(item.recipientName)}</div>
+    <div class="meta-row" style="margin-top:10px;">
+      ${item.recipientClass  ? `<div class="meta-item"><span>Sala</span><span>${escapeHtml(item.recipientClass)}</span></div>` : ''}
+      ${item.recipientCourse ? `<div class="meta-item"><span>Curso</span><span>${escapeHtml(item.recipientCourse)}</span></div>` : ''}
+      <div class="meta-item"><span>Remetente</span><span>${escapeHtml(anon ? 'Anônimo' : (item.senderName || '—'))}</span></div>
+      ${!anon && item.senderContact ? `<div class="meta-item"><span>Contato</span><span>${escapeHtml(item.senderContact)}</span></div>` : ''}
+      <div class="meta-item"><span>Data</span><span>${formatDate(item.createdAt)}</span></div>
+      <div class="meta-item"><span>Giftcard</span><span>${escapeHtml(item.codigoGiftcard || '—')}</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Mensagem</h2>
+    <div class="mensagem">${escapeHtml(item.messageText)}</div>
+  </div>
+
+  <div class="section">
+    <h2>Itens inclusos</h2>
+    <div class="itens">
+      ${['💌 Carta', ...Object.entries(ben).filter(([,v])=>v)
+          .map(([k]) => `${BEN_ICONS_TEXT[k]||'🎁'} ${BEN_LABELS_TEXT[k]||k}`)
+        ].map(i => `<span class="item-pill">${i}</span>`).join('')}
+    </div>
+  </div>
+
+  ${item.youtubeLink ? `
+  <div class="section">
+    <h2>Música dedicada</h2>
+    <div class="musica">🎵 ${escapeHtml(item.youtubeLink)}</div>
+  </div>` : ''}
+
+  <div class="footer">
+    <span>ID: ${escapeHtml(item.id)}</span>
+    <span>Correio Elegante — Terceirão 2026</span>
+  </div>
+
+  <script>window.onload = () => { window.print(); }<\/script>
+</body>
+</html>`);
+    printWin.document.close();
   }
 
   function renderCards(items) {
